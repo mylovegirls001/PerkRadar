@@ -1,13 +1,7 @@
-# .github/workflows/build.yml
-#
-# 手动触发的完整构建流水线：lint → test → build → Docker 镜像推送至 GHCR
-# 在 Actions 页面点 "Run workflow" 即可触发
-
 name: Build
 
 on:
   workflow_dispatch:
-    # 可选：手动触发时输入镜像 tag，不填则用 latest
     inputs:
       image_tag:
         description: '镜像 tag（留空则用 latest）'
@@ -23,10 +17,9 @@ permissions:
   packages: write
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository }}
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/perkradar
 
 jobs:
-  # ── Job 1: lint + test + build ──
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -53,7 +46,6 @@ jobs:
       - name: Dependency audit (production only)
         run: npm audit --omit=dev --registry=https://registry.npmjs.org
 
-  # ── Job 2: 构建并推送 Docker 镜像 ──
   docker:
     needs: verify
     runs-on: ubuntu-latest
